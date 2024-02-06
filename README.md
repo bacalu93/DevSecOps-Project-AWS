@@ -256,6 +256,7 @@ Now, you have installed the Dependency-Check plugin, configured the tool, and ad
 
 ```groovy
 
+
 pipeline{
     agent any
     tools{
@@ -311,7 +312,7 @@ pipeline{
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build --build-arg TMDB_V3_API_KEY=<yourapikey> -t netflix ."
+                       sh "docker build --build-arg TMDB_V3_API_KEY=5ec8da23c02445d7d7765229e505c409 -t netflix ."
                        sh "docker tag netflix andrei9310/netflix:latest "
                        sh "docker push andrei9310/netflix:latest "
                     }
@@ -323,13 +324,23 @@ pipeline{
                 sh "trivy image andrei9310/netflix:latest > trivyimage.txt" 
             }
         }
+        stage("Stop running container"){
+    steps {
+        script {
+            // Check if the container is running and stop it
+            sh "docker stop netflix"
+        }
+    }
+}
+
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name netflix -p 8081:80 andrei9310/netflix:latest'
+                sh 'docker run -d --rm --name netflix -p 8081:80 andrei9310/netflix:latest'
             }
         }
     }
 }
+
 
 
 If you get docker login failed errorr
